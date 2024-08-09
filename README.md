@@ -45,9 +45,13 @@ Remember, patience is a virtue, but in the world of IT, it's also a luxury we ca
 1. Run the script with sudo privileges (because go big or go home):
    - `sudo python3 lanbridge.py`
 
-2. When prompted, add your Ngrok auth token. Don't have one? Get it from [Ngrok's website](https://dashboard.ngrok.com/get-started/your-authtoken). It's free, just like this advice.
+2. When prompted, add your Ngrok auth token.
+   
+   Don't have one? Get it from [Ngrok's website](https://dashboard.ngrok.com/get-started/your-authtoken). It's free, just like this advice.
 
-3. Follow the prompts, or if you're feeling lucky (or lazy):
+   Also, make sure to verify your identity [here](https://dashboard.ngrok.com/settings#id-verification) to enable TCP endpoints.
+
+4. Follow the prompts, or if you're feeling lucky (or lazy):
    - Just keep hitting enter like you're trying to skip a cutscene in a video game.
    - The script will use default options faster than you can say "I should probably read those".
 
