@@ -1,3 +1,15 @@
+"""
+LANBridge - A Python script for LAN bridging.
+
+This script is based on the work of Gastordia.
+For more details, visit the GitHub repository:
+https://github.com/Gastordia/LANBridge
+
+License:
+This script is distributed under the GPL v3 License.
+Please see the repository for more details.
+
+"""
 import subprocess, sys, os, getpass, logging, shutil, re, argparse
 from termcolor import colored
 import time
