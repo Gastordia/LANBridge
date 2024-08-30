@@ -23,13 +23,13 @@ Originally developed for those delightful moments when VPN IPSEC decides to take
 ## Installation
 
 1. Clone this repository:
-  - `git clone https://github.com/Gastordia/lanbridge.git`
-  - `cd lanbridge`
+  - `git clone https://github.com/Gastordia/LANBridge.git`
+  - `cd LANBridge`
 
 2. For the lazy (which is most of us):
    
    Just run the script. It'll handle all the prerequisites like a doting parent.
-  - `sudo python3 lanbridge.py`
+  - `sudo python3 LANBridge.py`
 
 3. For the impatient (because waiting is for chumps):
 
@@ -43,7 +43,7 @@ Remember, patience is a virtue, but in the world of IT, it's also a luxury we ca
 ## Usage
 
 1. Run the script with sudo privileges (because go big or go home):
-   - `sudo python3 lanbridge.py`
+   - `sudo python3 LANBridge.py`
 
 2. When prompted, add your Ngrok auth token.
    
