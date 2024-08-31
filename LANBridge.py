@@ -18,9 +18,59 @@ import itertools
 import threading
 import pyfiglet
 import random
-
+import base64
 # Global variable for verbose mode
 VERBOSE = False
+
+def obfuscate(text):
+    # Convert the string to bytes and encode with base64
+    encoded = base64.b64encode(text.encode()).decode()
+    # Reverse the string
+    reversed_str = encoded[::-1]
+    # Add random characters between each character
+    obfuscated = ''
+    for char in reversed_str:
+        obfuscated += char + random.choice('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789')
+    # Add a random prefix and suffix
+    prefix = ''.join(random.choices('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=5))
+    suffix = ''.join(random.choices('abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789', k=5))
+    return prefix + obfuscated + suffix
+
+
+
+def deobfuscate(obfuscated_text):
+    # Remove the random prefix and suffix
+    stripped = obfuscated_text[5:-5]
+    # Remove the random characters between each character
+    deobfuscated = stripped[::2]
+    # Reverse the string
+    reversed_str = deobfuscated[::-1]
+    # Decode from base64 and convert back to string
+    decoded = base64.b64decode(reversed_str).decode()
+    return decoded
+
+
+# save the token
+def get_ngrok_auth_token(file_path):
+    ngrok_auth_token = None
+
+    # Check if the file exists and is not empty
+    if os.path.isfile(file_path) and os.path.getsize(file_path) > 0:
+        with open(file_path, 'r') as file:
+            ngrok_auth_token = deobfuscate(file.read().strip())
+
+    # If the file doesn't exist or is empty, prompt the user for the auth token
+    if not ngrok_auth_token:
+        ngrok_auth_token = getpass.getpass(prompt=colored("Enter your Ngrok auth token: ", 'cyan'))
+        ngrok_auth_tokensave = obfuscate(ngrok_auth_token)
+        with open(file_path, 'w') as file:
+            file.write(ngrok_auth_tokensave)
+        print(colored("Ngrok auth token saved successfully.", 'green'))
+    else:
+        print(colored("Ngrok auth token loaded from file.", 'green'))
+
+    return ngrok_auth_token
+
 
 def parse_arguments():
     parser = argparse.ArgumentParser(description="OpenVPN and Ngrok setup script")
@@ -43,7 +93,7 @@ def spinner(stop):
 def run_command_with_spinner(command, description, error_message):
     verbose_print(f"Executing command: {' '.join(command)}")
     print(colored(f"{description}...", 'yellow'))
-    
+
     stop_spinner = threading.Event()
     spinner_thread = threading.Thread(target=spinner, args=(stop_spinner,))
     spinner_thread.start()
@@ -60,7 +110,7 @@ def run_command_with_spinner(command, description, error_message):
         print(stdout)
         print(colored("Command errors:", 'blue'))
         print(stderr)
-    
+
     if process.returncode != 0:
         print(colored(f"{error_message}\nError output: {stderr}", 'red'))
         sys.exit(1)
@@ -68,7 +118,7 @@ def run_command_with_spinner(command, description, error_message):
         print(colored(f"Warning: Some package lists failed to download. This may not be critical.\nOutput: {stderr}", 'yellow'))
     else:
         print(colored(f"{description} completed successfully.", 'green'))
-    
+
     return stdout, stderr
 
 
@@ -94,7 +144,7 @@ def check_system_resources():
         sys.exit(1)
 
 # Function to run command
-def run_command(command, error_message):    
+def run_command(command, error_message):
     try:
         result = subprocess.run(command, check=True, stdout=subprocess.PIPE)
         print(colored(f"Command '{' '.join(command)}' executed successfully.", 'green'))
@@ -188,13 +238,13 @@ def update_ovpn_file(username, ngrok_host, ngrok_port):
     if os.path.exists(ovpn_file):
         with open(ovpn_file, "r") as file:
             content = file.read()
-        
+
         # Find and replace the remote line
         content = re.sub(r'remote \S+ \S+', f'remote {ngrok_host} {ngrok_port}', content)
-        
+
         with open(ovpn_file, "w") as file:
             file.write(content)
-        
+
         print(colored(f"Updated {ovpn_file} with Ngrok host {ngrok_host} and port {ngrok_port}.", 'green'))
     else:
         print(colored(f"{ovpn_file} does not exist.", 'red'))
@@ -282,13 +332,12 @@ def main():
     if not is_snap_installed() or not check_ngrok_installed():
         print(colored("Snap or Ngrok not found. Installing...", 'yellow'))
         install_snap_and_ngrok()
-    
+
     if not check_ngrok_installed():
         print(colored("Ngrok installation failed. Please install manually.", 'red'))
         sys.exit(1)
 
-    ngrok_auth_token = getpass.getpass(prompt=colored("Enter your Ngrok auth token: ", 'cyan'))
-    configure_ngrok(ngrok_auth_token)
+    configure_ngrok(get_ngrok_auth_token('token.txt'))
 
     local_ip = get_local_ip()
     os.environ['IP'] = local_ip
